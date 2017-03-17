@@ -3,6 +3,7 @@
 # to install:
 # library(devtools)
 # install_github("Bioconductor/GenomicDataCommons")
+# a note to Mac users: don't try this with XCode 8 
 
 library(GenomicDataCommons)
 options(stringsAsFactors=FALSE)
@@ -15,7 +16,7 @@ setwd("~/Documents/tcga/gdc/")
 GenomicDataCommons::status()
 
 #######################################################################################
-# query some metadata to find the project(s) we want
+# one way to filter: projects
 
 # starts with assigning a blank query that we will later filter
 projquery <- projects()
@@ -34,7 +35,7 @@ projquery
 # the count of records satisfying filter criteria, in this case everything 
 count(projquery)
 
-# we could go ahead and retrieve the data
+# retrieve some metadata
 projresults <- results(projquery)
 projresults
 # this looks wrong! Reason: default of results() is to return 10 records
@@ -51,12 +52,15 @@ projresults
 # have a look at fields; these vary based on the query type
 
 # the set of default fields is a reasonable subset of those available
+default_fields("projects")
 default_fields("files")
 length(available_fields("files"))
 default_fields("cases")
 length(available_fields("cases"))
 
-# set up a blank case query
+#######################################################################################
+# one way to filter: cases
+
 caseq <- cases()
 caseq
 
@@ -75,6 +79,7 @@ field_picker("cases")
 
 default_fields("files")
 types <- aggregations(facet(files(), c("access", "type")))
+types
 
 #######################################################################################
 # query some metadata to find the files we want to download
@@ -146,5 +151,16 @@ for (i in 1:length(readfiles)) {
 }
 head(gep[[1]])
 
+#######################################################################################
+# working with the token
 
+# gdc_token() searches for token resolved in this order: 
+# As a string stored in the environment variable, GDC_TOKEN
+# As a file, stored in the file named by the environment variable, GDC_TOKEN_FILE
+# In a file in the user home directory, called .gdc_token
 
+GDC_TOKEN <- read.table("gdcToken.txt")$V1
+gdc_token()
+gdc_token
+Sys.getenv("GDC_TOKEN")
+Sys.setenv(GDC_TOKEN=GDC_TOKEN)
