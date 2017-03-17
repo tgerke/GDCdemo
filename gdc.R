@@ -152,6 +152,21 @@ for (i in 1:length(readfiles)) {
 head(gep[[1]])
 
 #######################################################################################
+# find the linker for the files we just downloaded
+
+expands <- c("diagnoses","annotations", "demographic","exposures")
+clinResults = cases() %>% 
+  GenomicDataCommons::select(NULL) %>%
+  GenomicDataCommons::expand(expands) %>% 
+  results(size=50)
+clinDF = as.data.frame(clinResults)
+
+# the first case ID (not found because we only downloaded the first 50 cases!)
+searchid <- substr(readfiles[1], 1, 36)
+grep(searchid, clinDF$case_id)
+# should work if you filter the above clinResults query
+
+#######################################################################################
 # working with the token
 
 # gdc_token() searches for token resolved in this order: 
@@ -164,3 +179,4 @@ gdc_token()
 gdc_token
 Sys.getenv("GDC_TOKEN")
 Sys.setenv(GDC_TOKEN=GDC_TOKEN)
+
