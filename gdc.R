@@ -154,17 +154,23 @@ head(gep[[1]])
 #######################################################################################
 # find the linker for the files we just downloaded
 
-expands <- c("diagnoses","annotations", "demographic","exposures")
-clinResults = cases() %>% 
-  GenomicDataCommons::select(NULL) %>%
-  GenomicDataCommons::expand(expands) %>% 
-  results(size=50)
-clinDF = as.data.frame(clinResults)
+# set up query
+caseq <- filter(cases(), ~ project.project_id=="TCGA-PRAD" & 
+                  files.type=="gene_expression" &
+                  files.analysis.workflow_type=="HTSeq - FPKM")
+manifest(caseq)
+expandF <- expand(caseq, "files")
+count(expandF)  
+resultsF <- results(expandF, size=50)
+resultsDF <- as.data.frame(resultsF)
+head(resultsDF)
 
-# the first case ID (not found because we only downloaded the first 50 cases!)
+# here's the link
+head(subset(resultsDF, select=c("case_id", "files.file_name")))
+
+# the first case ID (suspect not found because we only downloaded the first 50 cases)
 searchid <- substr(readfiles[1], 1, 36)
-grep(searchid, clinDF$case_id)
-# should work if you filter the above clinResults query
+grep(searchid, resultsDF$files.file_id)
 
 #######################################################################################
 # working with the token
